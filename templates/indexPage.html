@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Room Booking Application</title>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+     <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> 
+
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.9.95/css/materialdesignicons.css" rel="stylesheet">
+  
+   
+  
+    <!--fontawesome link-->
+    <script src="https://kit.fontawesome.com/a46955341a.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/136b4fde49.js" crossorigin="anonymous"> </script> 
+
+  </head>
+    <body>
+      <div class="login-in-page">
+          <h1 id ="login-in" hidden="false"> Login in </h1>
+          
+          <div id="firebase-auth-container"></div>
+
+      </div>
+      <div id="login-info" hidden="true">
+        <header>
+            <button id="sign-out" hidden="true"> Sign out </button>
+            
+            <h1>Room Management System</h1>
+          </header>
+          <!--Admin Page Wrapper-->
+          <div id="admin-wrapper">
+              <!--Left Sidebar-->
+              <aside class="left">
+                     <ul>
+                         <li><a href="/booking">Manage Bookings</a></li>
+                         <li><a href="/addRoom">Create Room</a></li>
+                     </ul>
+              </aside>
+              <!--//left sidebar-->
+
+              <!--main-->
+              <main class="main-content">
+
+                  <div class="button-group">
+                    <form action="/addRoom"  method="post">
+                      <input type="submit" class="btn btn-danger" value="Room" /> 
+                    </form>
+
+                    <form action="/booking"  method="post">
+                      <input type="submit" class="btn btn-danger" id="addBooking" value="Booking" /> 
+                    </form>
+                  </div>
+                 
+                {% if userDetails %}
+                <section id="dp">
+                  {% if result %}
+                  <h4>Select an available room: </h4>
+                  <p>There are room available</p>
+                  <div class="row">
+                    {% for i in result %}
+                    <div class="col-sm-4">
+                      <div class="card bg-dark mb-1" style="max-width: 18rem;">
+                        <div class="card-body"> 
+                          <p class="card-text">Room Name: {{i['Rname']}}</p>
+                          <p class="card-text">Capacity: {{i['Rcapacity']}}</p>
+                          <p class="card-text">Access Method:{{i['gridRadios']}} </p>
+                          <a href="/booking" class="btn btn-danger">Book</a>
+                        </div>
+                      </div>
+                    </div> 
+                    {% endfor %}
+                  {% endif %} 
+                  </div>
+                </section>
+                {% endif %}
+                  
+                  
+              </main>
+          </div>
+      </div>
+
+      <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+      <script src="{{ url_for('static', filename='app-setup.js') }}"></script>
+      <script type="text/javascript">
+        var dp = new DayPilot.Scheduler("dp");
+          dp.startDate = DayPilot.Date.today().firstDayOfMonth();
+          dp.days = DayPilot.Date.today().daysInMonth();
+          dp.scale = "Day";
+          dp.timeHeaders = [
+              { groupBy: "Month", format: "MMMM yyyy" },
+              { groupBy: "Day", format: "d" }
+          ];
+        dp.init();
+      </script>
+    </body>
+</html>

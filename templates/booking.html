@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Book Room </title>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+     <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> 
+
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.9.95/css/materialdesignicons.css" rel="stylesheet">
+  
+    <!--fontawesome link-->
+    <script src="https://kit.fontawesome.com/a46955341a.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/136b4fde49.js" crossorigin="anonymous"> </script> 
+
+  </head>
+    <body>
+           
+      <div id="login-info" hidden="true">
+        <header>
+            <button id="sign-out" hidden="true"> Sign out </button>
+            
+            <h1>Book Room</h1>
+          </header>
+          <!--Admin Page Wrapper-->
+          <div id="admin-wrapper">
+              <!--Left Sidebar-->
+              <aside class="left">
+                     <ul>
+                         <li><a href="/">Manage Bookings</a></li>
+                         <li><a href="/booking">Create Room</a></li>
+                     </ul>
+              </aside>
+              <!--//left sidebar-->
+
+              <!--main-->
+              <main class="main-content">
+                {% if error %}
+                    <p class="error">{{error}}</p>
+                {% endif %}
+
+                <form action="/booking" method="post" class="booking">
+                   <h3 style="margin: 1em 0em 1em 5em;">Book A Room</h3>
+                    <ul>
+                        <li> 
+                          <label for="name">Meeting Title:</label>
+                          <input type="text" id="Mname" name="Meeting-Name"  class="form-control">
+                        </li>
+                        <li>
+                            <label for="date">Date:</label>
+                            <input type="date" id="date" name="date"  class="form-control">    
+                          </li>
+                        <li>
+                          <label for="time">Time:</label>
+                          <input type="time" id="addTime" name="addTime" class="form-control">
+                        </li>
+                    </ul>
+                    <section class="features">
+                        <div class="container">
+                          <h5>Meeting Services</h5>
+                          <p>Select any additional services for your room</p>
+                          <ul>
+                            <li>
+                              <label for="foodservice">Food service:</label>
+                              <input type="checkbox" value="true" name="Breakfast" class="form-option"/>  
+                            </li>
+                            <li> 
+                              <label for="taxiservice">Taxi Service:</label>
+                              <input type="checkbox" value="true" name="Lanch" class="form-option"/>
+                            </li>
+                          </ul>
+                        </div>
+                        
+                    </section>
+                    <div class="d-grid gap-2 col-6 mx-auto">
+                        <input type="submit" name="button" value="submit" class="btn btn-danger booking"/>
+                    </div>
+                    
+                   
+                </form>    
+              </main>
+          </div>
+      </div>
+
+      <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+      <script src="{{ url_for('static', filename='app-setup.js') }}"></script>
+    </body>
+</html>
