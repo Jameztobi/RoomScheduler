@@ -196,6 +196,10 @@ def addRoomPageHandler():
 def bookingPageHandler():
     return render_template('booking.html')
 
+@app.route('/myRooms', methods=['POST', 'GET'])
+def manageRoomHandler():
+    return render_template('myRoomList.html')
+
 
 
 

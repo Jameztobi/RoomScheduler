@@ -51,46 +51,27 @@
               <!--main-->
               <main class="main-content">
 
-                  <div class="button-group">
-                    <form action="/addRoom"  method="post">
-                      <input type="submit" class="btn btn-danger" value="Room" /> 
-                    </form>
-
-                    <form action="/booking"  method="post">
-                      <input type="submit" class="btn btn-danger" id="addBooking" value="Booking" /> 
-                    </form>
-                  </div>
-                 
-                {% if userDetails %}
-                <section id="dp">
-                  {% if result %}
-                  <h4>Select an available room: </h4>
-                  <p>There are room available</p>
-                  <div class="row">
-                    {% for i in result %}
-                    <div class="col-sm-4">
-                      <div class="card bg-dark mb-1" style="max-width: 18rem;">
-                        <div class="card-body"> 
-                          <p class="card-text">Room Name: {{i['Rname']}}</p>
-                          <p class="card-text">Capacity: {{i['Rcapacity']}}</p>
-                          <p class="card-text">Access Method:{{i['gridRadios']}} </p>
-                          <div class="row">
-                            <div class="col-6">
-                              <a href="/booking" class="btn btn-danger">Book</a>
-                            </div>
-                            <div class="col-6">
-                              <a href=" " class="btn btn-danger" style="margin: 0em 0em 0em -1em;">Show Booking</a>
-                            </div>
-                          </div>
-                        </div>
+                <h2>Filter Room</h2>
+                <form action="" method="POST">
+                    <div id="myBtnContainer">
+                        <button class="btn active filter" type="submit" value="all" name="all" onclick="filterSelection('all')"> Show all</button>
+                        <button class="btn filter" type="submit" value="card" name="card" onclick="filterSelection('card')"> Card</button>
+                        <button class="btn filter" type="submit" value="key" name="key"  onclick="filterSelection('Key')"> Key</button>
+                        <button class="btn filter" type="submit" value="food" name="food" onclick="filterSelection('food')"> food service</button>
+                        <button class="btn filter" type="submit" value="taxi" name="taxi" onclick="filterSelection('Taxi')"> Taxi Service</button>
+                        <button class="btn filter" type="submit" value="date" name="date" onclick="filterSelection('Date')"> Date</button>
+                        <div></div>
                       </div>
-                    </div> 
-                    {% endfor %}
-                  {% endif %} 
-                  </div>
-                </section>
-                {% endif %}
+                </form>
+                
+                
+                <div class="container">
                   
+
+                </div>
+                
+                
+               
                   
               </main>
           </div>
@@ -99,16 +80,10 @@
       <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
       <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
       <script src="{{ url_for('static', filename='app-setup.js') }}"></script>
-      <script type="text/javascript">
-        var dp = new DayPilot.Scheduler("dp");
-          dp.startDate = DayPilot.Date.today().firstDayOfMonth();
-          dp.days = DayPilot.Date.today().daysInMonth();
-          dp.scale = "Day";
-          dp.timeHeaders = [
-              { groupBy: "Month", format: "MMMM yyyy" },
-              { groupBy: "Day", format: "d" }
-          ];
-        dp.init();
+      <script>
+      
       </script>
+        
+        
     </body>
 </html>

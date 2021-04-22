@@ -130,32 +130,50 @@ ul li label {
     width: 43px;
     font-size: 20px;
     font-weight: 200;
-  }
-  input.form-control{
+}
+input.form-control{
     margin: -29px 0px 3px 178px;
     padding: 4px;
     width: 204px;
     box-sizing: border-box;
    
-  }
+}
   
-  input.form-option{
+input.form-option{
     margin: 5px 0px 5px 219px;
     padding: 3px;
     width: 157px;
     box-sizing: border-box;
    
-  }
+}
 
-  form.booking{
+form.booking{
     margin: 3em 0em 0em 18em;
-  }
-  section.features{
-    margin: 2em 0em 0em 1em;
-  }
+}
 
-  input.btn.btn-danger.booking{
+section.features{
+    margin: 2em 0em 0em 1em;
+}
+
+input.btn.btn-danger.booking{
     margin: 1em 11em 0em -6em;
-  }
+}
+
+  /* Style the buttons */
+.btn.filter {
+    border: none;
+    outline: none;
+    padding: 12px 16px;
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+.btn:hover {
+    background-color: #ddd;
+}
+  
+.btn.active.filter {
+    background-color: #666;
+    color: white;
+}
 
   
