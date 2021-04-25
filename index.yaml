@@ -1,3 +1,9 @@
+indexes:
+- kind: booking
+  ancestor: yes
+  properties:
+  - name: Booking
+    direction: desc
 
 
 

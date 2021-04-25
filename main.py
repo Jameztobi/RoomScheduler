@@ -14,6 +14,7 @@ datastore_client = datastore.Client()
 # get access to a request adapter for firebase as we will need this to authenticate users
 firebase_request_adapter = requests.Request()
 def createUserDetails(claims):
+    
     entity_key = datastore_client.key('UserDetails', claims['email']) 
     entity = datastore.Entity(key = entity_key)
     entity.update({
@@ -33,49 +34,44 @@ def retrieveUserDetails(claims):
     
     return entity
 
-def createNewBooking(category, status, Date, Duration ):
+def createNewBooking(claims, title, startDate, endDate, startTime, endTime, category, roomID):
     id = random.getrandbits(63)
 
-    entity_key = datastore_client.key('Booking', id)
+    entity_key = datastore_client.key('UserDetails', claims['email'], 'Booking', id)
 
     entity =datastore.Entity(key=entity_key)
 
     entity.update({
+        'title': title,
+        'startDate': startDate,
+        'endDate': endDate,
+        'startTime': startTime,
+        'endTime': endTime, 
         'category': category,
-        'status': status,
-        'Date': Date,
-        'Duration': Duration,
-        'roomID':[]
+        'roomID': roomID
     })
 
-    datastore_client.put(entity)
-
-    session['entity']=entity
-
+    datastore_client.put(entity)  
+    
     return id 
 
-def retrieveBooking(userDetails):
-    booking_ids=userDetails['bookings_list']
-    booking_keys=[]
+def retrieveBooking(email, bookingID):
+    entity_key = datastore_client.key('UserDetails', email, 'Booking', bookingID)
+    entity = datastore_client.get(entity_key)
     
+    return entity
 
-    for i in range(len(booking_ids)):
-        booking_keys.append(datastore_client.key('Booking', booking_ids[i]))
-    
-    bookings_list=datastore_client.get_multi(booking_keys)
-    
-    return bookings_list
-
-def editBooking(id, roomID, category, status, Date, Duration): 
-    entity_key = datastore_client.key('Booking', id)
-
-    entity =datastore.Entity(key=entity_key)
+def updateBooking(claims, title, startDate, endDate, startTime, endTime, category, bookingID): 
+    ancestor_key= datastore_client.key('UserDetails', claims['email'], 'Booking', bookingID)
+    entity = datastore_client.get(ancestor_key)
 
     entity.update({
-        'category': category,
-        'status': status,
-        'Date': Date,
-        'Duration': Duration
+        'title': title,
+        'startDate': startDate,
+        'endDate': endDate,
+        'startTime': startTime,
+        'endTime': endTime, 
+        'category': category
     })
 
     datastore_client.put(entity)
@@ -105,7 +101,8 @@ def createNewRoom(Rname, Rcapacity, gridRadios):
         'Rname': Rname,
         'Rcapacity': Rcapacity,
         'gridRadios': gridRadios,
-        'state':state
+        'state':state,
+        'booking_list':{}
 
     })
 
@@ -113,18 +110,37 @@ def createNewRoom(Rname, Rcapacity, gridRadios):
 
     return id 
 
-def addRoomToBookings(roomID):
-    #Booking=session['entity']
-
-    room_keys=Booking['roomID']
-    room_keys.append(roomID)
-    entity_key=datastore_client.key('GpuApplication', name)
+def addBookingsToRoom( bookingID, email, roomID, startDate, endDate, startTime, endTime):
+    booking_list=[]
+    temp=[]
+    entity_key=datastore_client.key('room', roomID)
     entity=datastore_client.get(entity_key)
-    Booking.update({
-        'room_keys': room_keys 
-    })
 
-    datastore_client.put(Booking)
+    myList = {
+        "bookingID": bookingID,
+        "email": email,
+        "startDate": startDate,
+        "endDate": endDate,
+        "startTime": startTime,
+        "endTime": endTime
+    }
+
+    if len(entity['booking_list'])==0:
+        print(len(entity['booking_list']))
+        temp.append(dict(myList))
+        entity.update({
+            'booking_list':temp 
+        })
+        datastore_client.put(entity)
+    else:    
+        temp=entity['booking_list']
+        print(temp)
+        temp.append(dict(myList))
+        booking_list=temp
+        entity.update({
+            'booking_list': booking_list
+        })
+        datastore_client.put(entity)
 
 
 
@@ -133,6 +149,48 @@ def retrieveRoom(roomID):
     entity=datastore_client.get(entity_key)
 
     return entity
+
+def updateBookingInRoom(title, startDate, endDate, startTime, endTime, category, roomID,bookingID):
+   
+    booking_list = None
+    entity_key= datastore_client.key('room', roomID)
+    mylist = datastore_client.get(entity_key)
+
+    booking_list=mylist['booking_list']
+    
+    expectedResult = [d for d in booking_list if d['bookingID'] == bookingID]
+
+    for booking in booking_list:
+        if booking == expectedResult[0]:
+            booking_list.remove(expectedResult[0])
+
+    myDict = {
+        "bookingID": bookingID,
+        "email": session['email'],
+        "startDate": startDate,
+        "endDate": endDate,
+        "startTime": startTime,
+        "endTime": endTime
+    }
+
+    temp=[]
+    if len(mylist['booking_list'])==0:
+        print(len(mylist['booking_list']))
+        temp.append(dict(myDict))
+        mylist.update({
+            'booking_list':temp 
+        })
+        datastore_client.put(mylist)
+    else:    
+        temp=booking_list
+        print(temp)
+        temp.append(dict(myDict))
+        booking_list=temp
+        mylist.update({
+            'booking_list': booking_list
+        })
+        datastore_client.put(mylist)
+        
 
 def deleteRoom(roomID):
     entity_key =datastore_client.key('room', roomID)
@@ -149,18 +207,27 @@ def addRoomToUser(userDetails, id):
     datastore_client.put(userDetails)
 
 def deleteBooking(claims, id):
-    userDetails = retrieveUserDetails(claims) 
-    booking_list_keys = userDetails['bookings_list']
+    entity_key = datastore_client.key('UserDetails', claims['email'], 'Booking', id)    
+    datastore_client.delete(entity_key)
+
+def deleteBookingInRoom( roomID, bookingID):
+    booking_list = None
+    entity_key= datastore_client.key('room', roomID)
+    mylist = datastore_client.get(entity_key)
+
+    booking_list=mylist['booking_list']
     
-    booking_key = datastore_client.key('Booking', booking_list_keys[id]) 
-    datastore_client.delete(booking_key)
-    
-    del booking_list_keys[id] 
-    userDetails.update({
-        'booking_list' : booking_list_keys 
+    expectedResult = [d for d in booking_list if d['bookingID'] == bookingID]
+
+    for booking in booking_list:
+        if booking == expectedResult[0]:
+            booking_list.remove(expectedResult[0])
+
+    mylist.update({
+        'booking_list': booking_list
     })
-    
-    datastore_client.put(userDetails)
+    datastore_client.put(mylist)
+
 
 @app.route('/')
 def root():
@@ -169,11 +236,13 @@ def root():
     claims = None
     userDetails = None
     result=None
+    email=None
 
     if id_token:
         try:
             claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
-            
+            session['email']=claims['email']
+
             userDetails = retrieveUserDetails(claims)
             if userDetails == None:
                 createUserDetails(claims)
@@ -192,15 +261,28 @@ def root():
 def addRoomPageHandler():
     return render_template('addRoom.html')
 
-@app.route('/booking', methods=['POST', 'GET'])
-def bookingPageHandler():
-    return render_template('booking.html')
+@app.route('/booking/<int:id>', methods=['POST', 'GET'])
+def bookingPageHandler(id):
+
+    return render_template('booking.html', id=id)
 
 @app.route('/myRooms', methods=['POST', 'GET'])
 def manageRoomHandler():
     return render_template('myRoomList.html')
 
+@app.route('/editBooking/<int:booking_id>/<int:roomID>', methods=['POST', 'GET'])
+def editBookingHandler(booking_id, roomID):
+    userEmail=session['email']
+    print("booking_id", booking_id)
+    result = retrieveBooking(userEmail, booking_id)
+    return render_template('editBookings.html', booking_id=booking_id, roomID=roomID, result=result)
 
+@app.route('/showBooking/<int:id>', methods=['POST', 'GET'])
+def ShowBookingHandler(id):
+    userEmail=  session['email']
+    print(userEmail)
+    result = retrieveRoom(id)
+    return render_template('showBooking.html', result=result, userEmail=userEmail, roomID=id)
 
 
 @app.route('/createRoom', methods=['POST', 'GET'])
@@ -217,7 +299,9 @@ def createRoomHander():
             claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
             userDetails = retrieveUserDetails(claims)
             
-            id =createNewRoom(request.form.get('Rname'), request.form.get('Rcapacity'), request.form.get('gridRadios'))
+            createNewRoom(request.form.get('Rname'), request.form.get('Rcapacity'), request.form.get('gridRadios'))
+            
+           # addBookingToRoom(id)
 
         except ValueError as exc: 
             error_message = str(exc)
@@ -226,10 +310,12 @@ def createRoomHander():
         
     return redirect('/')
 
-@app.route('/booking_room/<int:ID>')
-def createBookingHander(ID):
+@app.route('/booking_room/<int:id>', methods=['POST', 'GET'])
+def createBookingHander(id):
+    print("id ", id )
     id_token = request.cookies.get("token") 
     claims = None
+    roomID=id
     userDetails = None
 
     if id_token:
@@ -237,16 +323,91 @@ def createBookingHander(ID):
         try:
             claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
             userDetails = retrieveUserDetails(claims)
-
-            id = createNewBooking(ID, request.form.get('status'), request.form.get('Date'), request.form.get('Duration'))
-            addRoomToBookings(id)
+        
+            bookingID = createNewBooking(claims, request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), roomID)
+            addBookingToUser(userDetails, bookingID)
+            addRoomToUser(userDetails, roomID)
+            addBookingsToRoom( bookingID, claims['email'], roomID, request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'))
             #flask("You have successfully booked a room")
 
         except ValueError as exc: 
             error_message = str(exc)
 
     return redirect('/')
-   
+
+@app.route('/edit_booking_room/<int:id>/<int:roomID>', methods=['POST', 'GET'])
+def edit_BookingHander(id, roomID ):
+    id_token = request.cookies.get("token") 
+    claims = None
+    bookingID=id
+    userDetails = None
+
+    if id_token:
+
+        try:
+            claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
+            userDetails = retrieveUserDetails(claims)
+                      
+            updateBooking(claims, request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), bookingID)
+            updateBookingInRoom(request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), roomID, bookingID)
+
+        except ValueError as exc: 
+            error_message = str(exc)
+
+    return redirect('/')
+
+@app.route('/delete_booking_room/<int:id>/<int:roomID>', methods=['POST', 'GET'])
+def delete_BookingHander(id, roomID ):
+    id_token = request.cookies.get("token") 
+    claims = None
+    bookingID=id
+    userDetails = None
+
+    if id_token:
+
+        try:
+            claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
+            userDetails = retrieveUserDetails(claims)
+                      
+            deleteBooking(claims, bookingID)
+            deleteBookingInRoom( roomID, bookingID)
+
+        except ValueError as exc: 
+            error_message = str(exc)
+
+    return redirect('/')
+
+@app.route('/filterRoom', methods=['POST', 'GET'])
+def filterHandler():
+    name = None
+    
+    if request.method =='POST':
+        if request.form['par']=="card":
+            name="card"
+        if request.form['par']=="all":
+            name="all"
+        if request.form['par']=="key":
+            name="key"
+        if request.form['par']=="food":
+            name="food"
+        if request.form['par']=="taxi":
+            name="taxi"
+    print(name)
+     
+
+    return redirect('/')
+
+@app.route('/date', methods=['POST', 'GET'])
+def dateHandler():
+    startDate = None
+    endDate = None
+
+    if request.method =="POST":
+        startDate=request.form["startDate"]
+        endDate=request.form["endDate"]
+    
+    print(startDate)
+    print(endDate)
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)

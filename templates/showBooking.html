@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Book Room </title>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+     <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> 
+
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.9.95/css/materialdesignicons.css" rel="stylesheet">
+  
+    <!--fontawesome link-->
+    <script src="https://kit.fontawesome.com/a46955341a.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/136b4fde49.js" crossorigin="anonymous"> </script> 
+
+  </head>
+    <body>
+           
+      <div id="login-info" hidden="true">
+        <header>
+            <button id="sign-out" hidden="true"> Sign out </button>
+            
+            <h1>Show Booking</h1>
+          </header>
+          <!--Admin Page Wrapper-->
+          <div id="admin-wrapper">
+              <!--Left Sidebar-->
+              <aside class="left">
+                     <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/addRoom">Create Room</a></li>
+                        <li><a href="/booking">Book Room</a></li>
+                        <li><a href="/myRooms">Manage Room</a></li>
+                     </ul>
+              </aside>
+              <!--//left sidebar-->
+
+              <!--main-->
+              <main class="main-content">
+                {% if error %}
+                    <p class="error">{{error}}</p>
+                {% endif %}
+
+                {% if result %}
+                   
+                        <table class="table">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Meeting Title</th>
+                                <th scope="col">StartDate:</th>
+                                <th scope="col">EndDate:</th>
+                                <th scope="col">StartTIme:</th>
+                                <th scope="col">EndTime:</th>
+                                <th scope="col" style="padding-left: 5em;">Action:</th>
+                            </tr>
+                            </thead>
+                            {% for i in result['booking_list'] %}
+                                {% if userEmail == i['email'] %}
+
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">{{ loop.index }}</th>
+                                            <td hidden>{{i['bookingID']}}</td>
+                                            <td>{{i['email']}}</td>
+                                            <td>{{i['startDate']}}</td>
+                                            <td>{{i['endDate']}}</td>
+                                            <td>{{i['startTime']}}</td>
+                                            <td>{{i['endTime']}}</td>
+                                            <td>
+                                                <ul>
+                                                  <li style="margin: 0em 0em -2.5em 7em">
+                                                      <a href="/editBooking/{{i['bookingID']}}/{{roomID}}" class="btn btn-primary a-btn-slide-text">
+                                                      <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                                      <span><strong>Edit</strong></span>            
+                                                  </a>
+                                                  </li>
+                                                  <li>
+                                                      <a href="/delete_booking_room/{{i['bookingID']}}/{{roomID}}" class="btn btn-primary a-btn-slide-text">
+                                                      <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                                      <span><strong>Delete</strong></span>            
+                                                   </a>
+                                                  </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                {% else %}
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">{{ loop.index }}</th>
+                                        <td>{{i['email']}}</td>
+                                        <td>{{i['startDate']}}</td>
+                                        <td>{{i['endDate']}}</td>
+                                        <td>{{i['startTime']}}</td>
+                                        <td>{{i['endTime']}}</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                                {% endif %}
+                            {% endfor %}
+                        </table>    
+                
+                {% endif %}
+                     
+              </main>
+          </div>
+      </div>
+
+      <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+      <script src="{{ url_for('static', filename='app-setup.js') }}"></script>
+    </body>
+</html>

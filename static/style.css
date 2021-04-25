@@ -176,4 +176,12 @@ input.btn.btn-danger.booking{
     color: white;
 }
 
+div.message p{
+    margin-bottom: 0;  
+}
+
+#demo{
+    margin-top: 2em;
+}
+
   

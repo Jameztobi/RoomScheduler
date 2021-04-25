@@ -15,8 +15,6 @@
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.9.95/css/materialdesignicons.css" rel="stylesheet">
   
-   
-  
     <!--fontawesome link-->
     <script src="https://kit.fontawesome.com/a46955341a.js" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/136b4fde49.js" crossorigin="anonymous"> </script> 
@@ -40,6 +38,7 @@
               <!--Left Sidebar-->
               <aside class="left">
                      <ul>
+                         <li><a href="/">Home</a></li>
                          <li><a href="/addRoom">Create Room</a></li>
                          <li><a href="/booking">Book Room</a></li>
                          <li><a href="/myRooms">Manage Room</a></li>
@@ -52,21 +51,23 @@
               <main class="main-content">
 
                 <h2>Filter Room</h2>
-                <form action="" method="POST">
+                <form action="/filterRoom" method="POST">
                     <div id="myBtnContainer">
-                        <button class="btn active filter" type="submit" value="all" name="all" onclick="filterSelection('all')"> Show all</button>
-                        <button class="btn filter" type="submit" value="card" name="card" onclick="filterSelection('card')"> Card</button>
-                        <button class="btn filter" type="submit" value="key" name="key"  onclick="filterSelection('Key')"> Key</button>
-                        <button class="btn filter" type="submit" value="food" name="food" onclick="filterSelection('food')"> food service</button>
-                        <button class="btn filter" type="submit" value="taxi" name="taxi" onclick="filterSelection('Taxi')"> Taxi Service</button>
-                        <button class="btn filter" type="submit" value="date" name="date" onclick="filterSelection('Date')"> Date</button>
-                        <div></div>
+                        <button class="btn active filter" type="submit" value="all" name="par"> Show all</button>
+                        <button class="btn filter" type="submit" value="card" name="par"> Card</button>
+                        <button class="btn filter" type="submit" value="key" name="par"> Key</button>
+                        <button class="btn filter" type="submit" value="food" name="par"> food service</button>
+                        <button class="btn filter" type="submit" value="taxi" name="par"> Taxi Service</button>
+                        <button class="btn filter" type="submit" value="date"  id="myBtn" onclick="dateFunction()"> Date</button>
+                        
                       </div>
                 </form>
-                
+
+                <form action="/date" method="POST">
+                    <div id="demo"></div>
+                </form>
                 
                 <div class="container">
-                  
 
                 </div>
                 
@@ -81,7 +82,10 @@
       <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
       <script src="{{ url_for('static', filename='app-setup.js') }}"></script>
       <script>
-      
+      function dateFunction(){
+        document.getElementById("demo").innerHTML = '<div class="message"><h4>Add Date</h4><p>StartDate:</p><input type="date" name="startDate"><br><p>EndDate:</P><input type="date" name="endDate" id="message"><br><input type="submit" class="btn btn-danger" value="Submit"/> </div>';
+        event.preventDefault();
+      }
       </script>
         
         
