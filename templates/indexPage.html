@@ -77,11 +77,14 @@
                           <p class="card-text">Capacity: {{i['Rcapacity']}}</p>
                           <p class="card-text">Access Method:{{i['gridRadios']}} </p>
                           <div class="row">
-                            <div class="col-6">
-                              <a href="/booking/{{i['id']}}" class="btn btn-danger">Book</a>
+                            <div class="col-4">
+                              <a href="/booking/{{i['id']}}" class="btn btn-danger">Book Room</a>
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
                               <a href="/showBooking/{{i['id']}}" class="btn btn-danger" style="margin: 0em 0em 0em -1em;">Show Booking</a>
+                            </div>
+                            <div class="col-4">
+                              <a href="/deleteRoom/{{i['id']}}" class="btn btn-danger" style="margin: 0em 0em 0em -1em;">Delete Room</a>
                             </div>
                           </div>
                         </div>

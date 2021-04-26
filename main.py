@@ -284,6 +284,17 @@ def ShowBookingHandler(id):
     result = retrieveRoom(id)
     return render_template('showBooking.html', result=result, userEmail=userEmail, roomID=id)
 
+@app.route('/deleteRoom/<int:id>', methods=['POST', 'GET'])
+def deleteRoomHandler(id):
+    result = retrieveRoom(id)
+
+    if len(result['booking_list'])==0:
+        deleteRoom(id)
+        flash("You have successfully deleted the room")
+    else:
+        flash("You can't delete a room that still have bookings")
+
+    return redirect('/')
 
 @app.route('/createRoom', methods=['POST', 'GET'])
 def createRoomHander():
