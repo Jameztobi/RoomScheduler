@@ -268,7 +268,18 @@ def bookingPageHandler(id):
 
 @app.route('/myRooms', methods=['POST', 'GET'])
 def manageRoomHandler():
-    return render_template('myRoomList.html')
+    email=session['email']
+    data=None
+    
+    ancestor_key = datastore_client.key('UserDetails', email)
+
+    query = datastore_client.query(kind='Booking', ancestor=ancestor_key)
+    
+    data=query.fetch()
+
+    print(data)
+
+    return render_template('myRoomList.html', data=data)
 
 @app.route('/editBooking/<int:booking_id>/<int:roomID>', methods=['POST', 'GET'])
 def editBookingHandler(booking_id, roomID):
@@ -391,22 +402,22 @@ def delete_BookingHander(id, roomID ):
 @app.route('/filterRoom', methods=['POST', 'GET'])
 def filterHandler():
     name = None
+    result=None
     
     if request.method =='POST':
-        if request.form['par']=="card":
-            name="card"
+        query = datastore_client.query(kind='room')
         if request.form['par']=="all":
-            name="all"
+            result=query.fetch()
+        
+        if request.form['par']=="card":
+            query.add_filter('gridRadios', '=',request.form['par'])
+            result=query.fetch()
+        
         if request.form['par']=="key":
-            name="key"
-        if request.form['par']=="food":
-            name="food"
-        if request.form['par']=="taxi":
-            name="taxi"
-    print(name)
+            query.add_filter('gridRadios', '=', request.form['par'])
+            result=query.fetch()
      
-
-    return redirect('/')
+    return render_template('myRoomList.html', result=result)
 
 @app.route('/date', methods=['POST', 'GET'])
 def dateHandler():
