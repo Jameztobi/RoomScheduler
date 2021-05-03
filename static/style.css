@@ -138,6 +138,13 @@ input.form-control{
     box-sizing: border-box;
    
 }
+input.form-con{
+    margin: -2px 0px 3px -2px;
+    padding: 4px;
+    width: 204px;
+    box-sizing: border-box;
+   
+}
   
 input.form-option{
     margin: 5px 0px 5px 219px;
@@ -183,5 +190,12 @@ div.message p{
 #demo{
     margin-top: 2em;
 }
+
+/* button#myBtn.btn.filter{
+    margin: -16em 0em 0em 46em;
+}
+#clear{
+    margin-top: -7em;
+} */
 
   

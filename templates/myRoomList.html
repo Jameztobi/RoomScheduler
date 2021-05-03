@@ -54,7 +54,7 @@
               <main class="main-content">
 
                 <h2>Filter Room</h2>
-                <form action="/filterRoom" method="POST">
+                <form action="/showAllRooms" method="POST">
                     <div class="row" id="myBtnContainer">
                       <div class="col-4">
                         <button class="btn active filter" type="submit" value="all" name="par"> Show all Rooms</button>
@@ -62,16 +62,14 @@
                       <div class="col-4">
                        <!-- Example split danger button -->
                           <div class="btn-group">
-                            <button type="button" class="btn btn-danger">Action</button>
+                            <button type="button" class="btn btn-danger">Bookings</button>
                             <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                               <span class="visually-hidden">Toggle Dropdown</span>
                             </button>
-                            {% if data %}
+                            {% if data_list %}
                             <ul class="dropdown-menu">
-                              {% for record in data %}
-                                  {% for attribute in record.properties() %}
-                                  <li><a class="dropdown-item" href="#">{{ getattr(record, attribute) }}</a></li>
-                                  {% endfor %}
+                              {% for i in data_list %}
+                              <li><a class="dropdown-item" href="/filterRoom/{{i['BookingNumber']}}">BookingID: {{i['BookingNumber']}}</a></li>
                               {% endfor %}
                             </ul>
                             {% endif %}
@@ -88,31 +86,71 @@
                     <div id="demo"></div>
                 </form>
                 
-                {% if result %}
-                  <div class="container">
+                {% if data %}
+                  <div class="container" id="clear">
                     <table class="table">
                       <thead class="thead-dark">
                         <tr>
                           <th scope="col">#</th>
                           <th scope="col">Room Name</th>
                           <th scope="col">Room Capacity</th>
-                          <th scope="col">Room Access</th>
+                          <th scope="col">User Email</th>
+                          <th scope="col">Booking StartDate</th>
+                          <th scope="col">Booking EndDate</th>
+                          <th scope="col">Booking StartTime</th>
+                          <th scope="col">Booking EndTime</th>
                         </tr>
                       </thead>
                       
-                      {% for i in result %}
+                      {% for i in data %}
                         <tbody>
                             <tr>
                                 <th scope="row">{{ loop.index }}</th>
-                                <td>{{i['Rname']}}</td>
-                                <td>{{i['Rcapacity']}}</td>
-                                <td>{{i['gridRadios']}}</td>
+                                <td>{{i['roomName']}}</td>
+                                <td>{{i['roomCapacity']}}</td>
+                                <td>{{i['email']}}</td>
+                                <td>{{i['startDate']}}</td>
+                                <td>{{i['endDate']}}</td>
+                                <td>{{i['startTime']}}</td>
+                                <td>{{i['endTime']}}</td>                             
                             </tr>
                         </tbody>
                       {% endfor %}
                     </table>
                   </div> 
-                {% endif %}    
+                {% endif %} 
+
+                {% if list %} 
+                <div class="container" id="clear">
+                  <table class="table">
+                    <thead class="thead-dark">
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Room Name</th>
+                        <th scope="col">Room Capacity</th>
+                        <th scope="col">User Email</th>
+                        <th scope="col">Booking StartDate</th>
+                        <th scope="col">Booking EndDate</th>
+                        <th scope="col">Booking StartTime</th>
+                        <th scope="col">Booking EndTime</th>
+                      </tr>
+                    </thead>
+                      <tbody>
+                          <tr>
+                              <th scope="row">1</th>
+                              <td>{{list['roomName']}}</td>
+                              <td>{{list['roomCapacity']}}</td>
+                              <td>{{list['email']}}</td>
+                              <td>{{list['startDate']}}</td>
+                              <td>{{list['endDate']}}</td>
+                              <td>{{list['startTime']}}</td>
+                              <td>{{list['endTime']}}</td>                             
+                          </tr>
+                      </tbody>
+        
+                  </table>
+                </div> 
+              {% endif %}      
               </main>
           </div>
       </div>
