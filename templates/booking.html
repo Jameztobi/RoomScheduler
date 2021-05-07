@@ -1,161 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Book Room </title>
-    
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-    
-     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> 
 
-    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
-    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+<head>
+  <title>Book Room </title>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.9.95/css/materialdesignicons.css" rel="stylesheet">
-  
-    <!--fontawesome link-->
-    <script src="https://kit.fontawesome.com/a46955341a.js" crossorigin="anonymous"></script>
-    <script src="https://kit.fontawesome.com/136b4fde49.js" crossorigin="anonymous"> </script> 
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-  </head>
-    <body>
-           
-      <div id="login-info" hidden="true">
-        <header>
-            <button id="sign-out" hidden="true"> Sign out </button>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.9.95/css/materialdesignicons.css"
+    rel="stylesheet">
+
+  <!--fontawesome link-->
+  <script src="https://kit.fontawesome.com/a46955341a.js" crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/136b4fde49.js" crossorigin="anonymous"> </script>
+
+</head>
+
+<body>
+
+  <div id="login-info" hidden="true">
+    <header>
+      <button id="sign-out" hidden="true"> Sign out </button>
+
+      <h1>Book Room</h1>
+    </header>
+    <!--Admin Page Wrapper-->
+    <div id="admin-wrapper">
+      <!--Left Sidebar-->
+      <aside class="left">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/addRoom">Create Room</a></li>
+          <li><a href="/myRooms">Manage Room</a></li>
+        </ul>
+      </aside>
+      <!--//left sidebar-->
+
+      <!--main-->
+      <main class="main-content">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <form action="/booking_room/{{id}}" method="post" class="booking">
+          <h3 style="margin: 1em 0em 1em 5em;">Book A Room</h3>
+          {% if id %}
+          <p hidden name="id">id: {{id}}</p>
+          {% endif %}
+          <ul>
+            <li>
+              <label for="name">Meeting Title:</label>
+              <input type="text" id="Mname" name="title" class="form-control">
+            </li>
+            <li>
+              <label for="date">startDate:</label>
+              <input type="date" id="startDate" name="startDate" class="form-control">
+            </li>
+            <li>
+              <label for="time">startTime:</label>
+              <input type="time" id="startTime" name="startTime" class="form-control">
+            </li>
+            <li>
+              <label for="date">EndDate:</label>
+              <input type="date" id="endDate" name="endDate" class="form-control">
+            </li>
             
-            <h1>Book Room</h1>
-          </header>
-          <!--Admin Page Wrapper-->
-          <div id="admin-wrapper">
-              <!--Left Sidebar-->
-              <aside class="left">
-                     <ul>
-                        <li><a href="/">Home</a></li>
-                        <li><a href="/addRoom">Create Room</a></li>
-                        <li><a href="/booking">Book Room</a></li>
-                        <li><a href="/myRooms">Manage Room</a></li>
-                     </ul>
-              </aside>
-              <!--//left sidebar-->
+            <li>
+              <label for="time">EndTime:</label>
+              <input type="time" id="endTime" name="endTime" class="form-control">
+            </li>
 
-              <!--main-->
-              <main class="main-content">
-                {% if error %}
-                    <p class="error">{{error}}</p>
-                {% endif %}
+          </ul>
+          <section class="features">
+            <div class="container">
+              <h5>Meeting Services</h5>
+              <p>Select any additional services for your room</p>
+              <ul>
+                <li>
+                  <label for="foodservice">Food service:</label>
+                  <input type="checkbox" value="food" name="category" class="form-option" />
+                </li>
+                <li>
+                  <label for="taxiservice">Taxi Service:</label>
+                  <input type="checkbox" value="taxi" name="category" class="form-option" />
+                </li>
+              </ul>
+            </div>
 
-                <form action="/booking_room/{{id}}" method="post" class="booking" >
-                   <h3 style="margin: 1em 0em 1em 5em;">Book A Room</h3>
-                   {% if id %}
-                   <p hidden name="id" >id: {{id}}</p>
-                   {% endif %}
-                    <ul>
-                        <li> 
-                          <label for="name">Meeting Title:</label>
-                          <input type="text" id="Mname" name="title"  class="form-control">
-                        </li>
-                        <li>
-                            <label for="date">startDate:</label>
-                            <input type="date" id="startDate" name="startDate"  class="form-control">    
-                          </li>
-                        <li>
-                          <label for="date">EndDate:</label>
-                          <input type="date" id="endDate" name="endDate" class="form-control">
-                        </li>
-                        <li>
-                            <label for="time">startTime:</label>
-                            <input type="time" id="startTime" name="startTime" class="form-control">
-                        </li>
-                        <li>
-                            <label for="time">EndDate:</label>
-                            <input type="time" id="endTime" name="endTime" class="form-control">
-                        </li>  
-
-                    </ul>
-                    <section class="features">
-                        <div class="container">
-                          <h5>Meeting Services</h5>
-                          <p>Select any additional services for your room</p>
-                          <ul>
-                            <li>
-                              <label for="foodservice">Food service:</label>
-                              <input type="checkbox" value="food" name="category" class="form-option"/>  
-                            </li>
-                            <li> 
-                              <label for="taxiservice">Taxi Service:</label>
-                              <input type="checkbox" value="taxi" name="category" class="form-option"/>
-                            </li>
-                          </ul>
-                        </div>
-                        
-                    </section>
-                    <div class="d-grid gap-2 col-6 mx-auto">
-                        <input type="submit" id="datevalidator" name="button" value="submit" class="btn btn-danger booking"/>
-                    </div>
-                   
-                </form>    
-              </main>
+          </section>
+          <div class="d-grid gap-2 col-6 mx-auto">
+            <input type="submit" id="datevalidator" name="button" value="submit" class="btn btn-danger booking" />
           </div>
-      </div>
-      <script>
 
-      document.getElementById("datevalidator").addEventListener("click", myFunction);
+        </form>
+      </main>
+    </div>
+  </div>
+  <script>
 
-      function myFunction() {
+    document.getElementById("datevalidator").addEventListener("click", myFunction);
 
-        var startTime=document.getElementById("startTime").value;
-        var endTime=document.getElementById("endTime").value;
-        var startDate = new Date(document.getElementById("startDate").value);
-        startDate.setHours(0,0,0,0);
-        var endDate = new Date(document.getElementById("endDate").value);
-        endDate.setHours(0,0,0,0);
-        let date = new Date();
-        date.setHours(0,0,0,0);
+    function myFunction() {
 
-        var timefrom = new Date();
-        temp = startTime.split(":");
-        timefrom.setHours((parseInt(temp[0]) - 1 + 24) % 24);
-        timefrom.setMinutes(parseInt(temp[1]));
+      var startTime = document.getElementById("startTime").value;
+      var endTime = document.getElementById("endTime").value;
+      var startDate = new Date(document.getElementById("startDate").value);
+      startDate.setHours(0, 0, 0, 0);
+      var endDate = new Date(document.getElementById("endDate").value);
+      endDate.setHours(0, 0, 0, 0);
+      let date = new Date();
+      date.setHours(0, 0, 0, 0);
 
-        var timeto = new Date();
-        temp = endTime.split(":");
-        timeto.setHours((parseInt(temp[0]) - 1 + 24) % 24);
-        timeto.setMinutes(parseInt(temp[1]));
-        
-        var number= endDate-startDate;
-        var numberTime = timeto-timefrom;
-        console.log(endDate-startDate);
-        console.log(timefrom);
-        console.log(timeto);
-    
-        if( number >= 0 && numberTime >= 0 && startDate >= date && endDate >= date){
-          console.log("Good date");
-        }
-        else if (startDate == date || endDate == date ){
-          alert("good date 1");
-        } 
-        else if (startDate < date | endDate < date){
-          alert("Passed Date can't be submitted");
-          event.preventDefault();
-        }
-        else if (timeto < timefrom){
-            alert('start time should be smaller than end time!');
-            event.preventDefault(); 
-        } 
-        else {
-          alert("wrong date or Time ");
-          event.preventDefault();
-          
-        }
+      var timefrom = new Date();
+      temp = startTime.split(":");
+      timefrom.setHours((parseInt(temp[0]) - 1 + 24) % 24);
+      timefrom.setMinutes(parseInt(temp[1]));
+
+      var timeto = new Date();
+      temp = endTime.split(":");
+      timeto.setHours((parseInt(temp[0]) - 1 + 24) % 24);
+      timeto.setMinutes(parseInt(temp[1]));
+
+      var number = endDate - startDate;
+      var numberTime = timeto - timefrom;
+      console.log(endDate - startDate);
+      console.log(timefrom);
+      console.log(timeto);
+
+      if (number >= 0 && startDate >= date && endDate >= date) {
+        console.log("Good date");
+      }
+      else if (startDate == date || endDate == date) {
+        alert("good date 1");
+      }
+      else if (startDate < date | endDate < date) {
+        alert("Passed Date can't be submitted");
+        event.preventDefault();
+      }
+      else {
+        alert("wrong date or Time ");
+        event.preventDefault();
 
       }
-      
-      </script>
 
-      <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
-      <script src="{{ url_for('static', filename='app-setup.js') }}"></script>
-    </body>
+    }
+
+  </script>
+
+  <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+  <script src="{{ url_for('static', filename='app-setup.js') }}"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+
 </html>

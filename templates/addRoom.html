@@ -1,100 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Add Room </title>
-    
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-    
-     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> 
 
-    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
-    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+<head>
+  <title>Add Room </title>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.9.95/css/materialdesignicons.css" rel="stylesheet">
-  
-    <!--fontawesome link-->
-    <script src="https://kit.fontawesome.com/a46955341a.js" crossorigin="anonymous"></script>
-    <script src="https://kit.fontawesome.com/136b4fde49.js" crossorigin="anonymous"> </script> 
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-  </head>
-    <body>
-           
-      <div id="login-info" hidden="true">
-        <header>
-            <button id="sign-out" hidden="true"> Sign out </button>
-            
-            <h1>Add Room</h1>
-          </header>
-          <!--Admin Page Wrapper-->
-          <div id="admin-wrapper">
-              <!--Left Sidebar-->
-              <aside class="left">
-                     <ul>
-                        <li><a href="/">Home</a></li>
-                        <li><a href="/addRoom">Create Room</a></li>
-                        <li><a href="/booking">Book Room</a></li>
-                        <li><a href="/myRooms">Manage Room</a></li>
-                     </ul>
-              </aside>
-              <!--//left sidebar-->
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 
-              <!--main-->
-              <main class="main-content">
-               
-                <form action="/createRoom" method="post">
-                    {% with messages = get_flashed_messages() %}
-                        {% if messages %}
-                            {% for message in messages %}
-                                <h3 class=".bg-success"> {{ message }} </h3>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    <div class="form-group row">
-                        <label for="inputName3" class="col-sm-2 col-form-label">Room Name</label>
-                        <div class="col-sm-6">
-                            <input type="Rname" class="form-con" id="inputEmail4" name="Rname" placeholder="Room Name">
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="inputCapacity3" class="col-sm-2 col-form-label">Capacity</label>
-                        <div class="col-sm-6">
-                          <input type="number" class="form-con" id="inputCapacity3" name="Rcapacity" placeholder="Capacity">
-                        </div>
-                      </div>
-                      <fieldset class="form-group">
-                        <div class="row">
-                          <legend class="col-form-label col-sm-2 pt-0">Access Method</legend>
-                          <div class="col-sm-10">
-                            <div class="form-check">
-                              <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="Card" checked>
-                              <label class="form-check-label" for="gridRadios1">
-                                Card 
-                              </label>
-                            </div>
-                            <div class="form-check">
-                              <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="Key">
-                              <label class="form-check-label" for="gridRadios2">
-                                Key
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      <div class="form-group row">
-                        <div class="col-sm-10">
-                            <input type="submit" class="btn btn-danger btn-lg btn-block" value="Create Room" />
-                        </div>
-                      </div>
-                </form>
-                  
-                  
-              </main>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.9.95/css/materialdesignicons.css"
+    rel="stylesheet">
+
+  <!--fontawesome link-->
+  <script src="https://kit.fontawesome.com/a46955341a.js" crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/136b4fde49.js" crossorigin="anonymous"> </script>
+
+</head>
+
+<body>
+
+  <div id="login-info" hidden="true">
+    <header>
+      <button id="sign-out" hidden="true"> Sign out </button>
+
+      <h1>Add Room</h1>
+    </header>
+    <!--Admin Page Wrapper-->
+    <div id="admin-wrapper">
+      <!--Left Sidebar-->
+      <aside class="left">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/addRoom">Create Room</a></li>
+          <li><a href="/myRooms">Manage Room</a></li>
+        </ul>
+      </aside>
+      <!--//left sidebar-->
+
+      <!--main-->
+      <main class="main-content">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <form action="/createRoom" method="post">
+          <div class="form-group row">
+            <label for="inputName3" class="col-sm-2 col-form-label">Room Name</label>
+            <div class="col-sm-6">
+              <input type="Rname" class="form-con" id="inputEmail4" name="Rname" placeholder="Room Name">
+            </div>
           </div>
-      </div>
+          <div class="form-group row">
+            <label for="inputCapacity3" class="col-sm-2 col-form-label">Capacity</label>
+            <div class="col-sm-6">
+              <input type="number" class="form-con" id="inputCapacity3" name="Rcapacity" placeholder="Capacity">
+            </div>
+          </div>
+          <fieldset class="form-group">
+            <div class="row">
+              <legend class="col-form-label col-sm-2 pt-0">Access Method</legend>
+              <div class="col-sm-10">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="Card" checked>
+                  <label class="form-check-label" for="gridRadios1">
+                    Card
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="Key">
+                  <label class="form-check-label" for="gridRadios2">
+                    Key
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <input type="submit" class="btn btn-danger btn-lg btn-block" value="Create Room" />
+              </div>
+            </div>
+        </form>
 
-      <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
-      <script src="{{ url_for('static', filename='app-setup.js') }}"></script>
-    </body>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+  <script src="{{ url_for('static', filename='app-setup.js') }}"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+
 </html>

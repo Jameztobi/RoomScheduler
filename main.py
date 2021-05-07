@@ -14,14 +14,12 @@ datastore_client = datastore.Client()
 # get access to a request adapter for firebase as we will need this to authenticate users
 firebase_request_adapter = requests.Request()
 def createUserDetails(claims):
-    
     entity_key = datastore_client.key('UserDetails', claims['email']) 
     entity = datastore.Entity(key = entity_key)
     entity.update({
         'email' : claims['email'],
-        'name'  : claims['name'],
+        'name': claims['name'],                          
         'creation_date': datetime.datetime.now(), 
-        'bookings_list': [],
         'room_list': []
 
     })
@@ -34,29 +32,43 @@ def retrieveUserDetails(claims):
     
     return entity
 
+def isFound(title, startDate, endDate, startTime, endTime, category, roomID):
+    booking_list = None
+    entity_key= datastore_client.key('room', roomID)
+    mylist = datastore_client.get(entity_key)
+    
+    print(mylist)
+    booking_list=mylist['booking_list']
+    
+    
+    for booking in booking_list:
+        #print(booking['startDate'])
+        if  startDate > booking['endDate'] and endDate > booking['endDate'] and startTime > booking['startTime'] and endTime > booking['endTime'] or startDate < booking['startDate'] and endDate < booking['endDate'] and startTime < booking['startTime'] and endTime < booking['endTime']: 
+            print("true")
+            return True
+
+    print("False")       
+    return False
+
 def createNewBooking(claims, title, startDate, endDate, startTime, endTime, category, roomID):
     id = random.getrandbits(63)
-    
-    if isFound(request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), bookingID):
-        return -1
-        
-    entity_key = datastore_client.key('UserDetails', claims['email'], 'Booking', id)
+  
+    if isFound(title, startDate, endDate, startTime, endTime, category, roomID)==False:
+        entity_key = datastore_client.key('UserDetails', claims['email'], 'Booking', id)
+        entity =datastore.Entity(key=entity_key)
+        entity.update({
+            'title': title,
+            'startDate': startDate,
+            'endDate': endDate,
+            'startTime': startTime,
+            'endTime': endTime, 
+            'category': category,
+            'roomID': roomID
+        })
+        datastore_client.put(entity)  
+        return id 
 
-    entity =datastore.Entity(key=entity_key)
-
-    entity.update({
-        'title': title,
-        'startDate': startDate,
-        'endDate': endDate,
-        'startTime': startTime,
-        'endTime': endTime, 
-        'category': category,
-        'roomID': roomID
-    })
-
-    datastore_client.put(entity)  
-    
-    return id 
+    return -1
 
 def retrieveBooking(email, bookingID):
     entity_key = datastore_client.key('UserDetails', email, 'Booking', bookingID)
@@ -80,22 +92,8 @@ def updateBooking(claims, title, startDate, endDate, startTime, endTime, categor
     datastore_client.put(entity)
 
 
-
-# def addBookingToUser(userDetails, id):
-#     booking_keys=userDetails['bookings_list']
-#     booking_keys.append(id)
-
-#     userDetails.update({
-#         'bookings_list': booking_keys 
-#     })
-
-#     datastore_client.put(userDetails)
-
-
-
 def createNewRoom(Rname, Rcapacity, gridRadios):
     id = random.getrandbits(63)
-    state='available'
     
     entity_key=datastore_client.key('room', id)
     entity=datastore.Entity(key=entity_key)
@@ -104,7 +102,6 @@ def createNewRoom(Rname, Rcapacity, gridRadios):
         'Rname': Rname,
         'Rcapacity': Rcapacity,
         'gridRadios': gridRadios,
-        'state':state,
         'booking_list':{}
 
     })
@@ -151,23 +148,7 @@ def retrieveRoom(roomID):
 
     return entity
 
-def isFound(title, startDate, endDate, startTime, endTime, category, roomID,bookingID):
-    booking_list = None
-    entity_key= datastore_client.key('room', roomID)
-    mylist = datastore_client.get(entity_key)
 
-    booking_list=mylist['booking_list']
-    print(booking_list)
-    
-    
-    for booking in booking_list:
-        #print(booking['startDate'])
-        if booking['startDate']== startDate and booking['endDate'] == endDate and booking['startTime'] == startTime and booking['endTime'] == endTime and booking['bookingID'] != bookingID :
-            print("true")
-            return True
-
-    print("False")       
-    return False
 
 def updateBookingInRoom(title, startDate, endDate, startTime, endTime, category, roomID,bookingID):
    
@@ -269,8 +250,8 @@ def deleteBookingInRoom( roomID, bookingID):
     })
     datastore_client.put(mylist)
 
+
 def roomList(result):
-    
     booking_list = None
     result=result
     mydict={}
@@ -306,12 +287,14 @@ def root():
     if id_token:
         try:
             claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
-            session['email']=claims['email']
 
             userDetails = retrieveUserDetails(claims)
             if userDetails == None:
                 createUserDetails(claims)
                 userDetails = retrieveUserDetails(claims)
+
+            session['email']=claims['email']
+            print(claims['email']   )
             
 
             query = datastore_client.query(kind='room')
@@ -328,7 +311,6 @@ def addRoomPageHandler():
 
 @app.route('/booking/<int:id>', methods=['POST', 'GET'])
 def bookingPageHandler(id):
-
     return render_template('booking.html', id=id)
 
 @app.route('/myRooms', methods=['POST', 'GET'])
@@ -349,22 +331,25 @@ def manageRoomHandler():
             
             result=retrieveRooms(userDetails)
             list=roomList(result)
+            
 
         except ValueError as exc:
             error_message = str(exc)
         
-   
+    
     return render_template('myRoomList.html', data_list=list)
 
 @app.route('/editBooking/<int:booking_id>/<int:roomID>', methods=['POST', 'GET'])
 def editBookingHandler(booking_id, roomID):
     userEmail=session['email']
+    print(userEmail)
     result = retrieveBooking(userEmail, booking_id)
     return render_template('editBookings.html', booking_id=booking_id, roomID=roomID, result=result)
 
 @app.route('/showBooking/<int:id>', methods=['POST', 'GET'])
 def ShowBookingHandler(id):
     userEmail=  session['email']
+    print(userEmail)
     result = retrieveRoom(id)
     return render_template('showBooking.html', result=result, userEmail=userEmail, roomID=id)
 
@@ -412,7 +397,6 @@ def createRoomHander():
             
             createNewRoom(request.form.get('Rname'), request.form.get('Rcapacity'), request.form.get('gridRadios'))
             
-           # addBookingToRoom(id)
 
         except ValueError as exc: 
             error_message = str(exc)
@@ -429,21 +413,27 @@ def createBookingHander(id):
     userDetails = None
 
     if id_token:
-
         try:
             claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
             userDetails = retrieveUserDetails(claims)
-        
+          
             bookingID = createNewBooking(claims, request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), roomID)
-            #addBookingToUser(userDetails, bookingID)
-            addRoomToUser(userDetails, roomID)
-            addBookingsToRoom( bookingID, claims['email'], roomID, request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'))
-            #flask("You have successfully booked a room")
+            print(bookingID)
+            if  bookingID != -1:
+                flash('You have successfully booked a room')
+                addRoomToUser(userDetails, roomID)
+                addBookingsToRoom( bookingID, claims['email'], roomID, request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'))
+            else:
+                flash('This booking is not available')  
+            
 
         except ValueError as exc: 
             error_message = str(exc)
 
+        
     return redirect('/')
+    
+    
 
 @app.route('/edit_booking_room/<int:id>/<int:roomID>', methods=['POST', 'GET'])
 def edit_BookingHander(id, roomID ):
@@ -458,16 +448,19 @@ def edit_BookingHander(id, roomID ):
             claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
             userDetails = retrieveUserDetails(claims)
 
-            if isFound(claims, request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), bookingID):
+            if isFound(request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), roomID):
                 updateBooking(claims, request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), bookingID)
                 updateBookingInRoom(request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), roomID, bookingID)
+                flash('You have successfully edited your booking')
+                
             else:
-                print("error")
+                flash('This booking is not available')
             
         except ValueError as exc: 
             error_message = str(exc)
-
+        
     return redirect('/')
+        
 
 @app.route('/delete_booking_room/<int:id>/<int:roomID>', methods=['POST', 'GET'])
 def delete_BookingHander(id, roomID ):
@@ -483,7 +476,8 @@ def delete_BookingHander(id, roomID ):
             userDetails = retrieveUserDetails(claims)
                       
             deleteBooking(claims, bookingID)
-            deleteBookingInRoom( roomID, bookingID)
+            deleteBookingInRoom(roomID, bookingID)
+            flash('You have successfully deleted your booking')
 
         except ValueError as exc: 
             error_message = str(exc)
@@ -496,7 +490,6 @@ def showAllRoomsHandler():
     error_message = None
     claims = None
     userDetails = None
-    num=None
     list=None
     data=None
     
@@ -527,9 +520,7 @@ def filterRoomHandler(id):
     claims = None
     userDetails = None
     temp=None
-    list=None
-
-    
+    list=None  
 
     if id_token:
         try:

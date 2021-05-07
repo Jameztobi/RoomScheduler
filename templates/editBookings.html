@@ -34,7 +34,6 @@
                      <ul>
                         <li><a href="/">Home</a></li>
                         <li><a href="/addRoom">Create Room</a></li>
-                        <li><a href="/booking">Book Room</a></li>
                         <li><a href="/myRooms">Manage Room</a></li>
                      </ul>
               </aside>
@@ -42,10 +41,16 @@
 
               <!--main-->
               <main class="main-content">
-                {% if error %}
-                    <p class="error">{{error}}</p>
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  <span>{{ message }}</span>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
                 {% endif %}
-
+                {% endwith %}
                 <form action="/edit_booking_room/{{booking_id}}/{{roomID}}" method="post" class="booking">
                    <h3 style="margin: 1em 0em 1em 5em;">Book A Room</h3>
                    {% if booking_id %}
