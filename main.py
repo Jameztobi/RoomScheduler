@@ -1,4 +1,5 @@
-import datetime
+from datetime import datetime
+import time
 import random 
 from flask import Flask, render_template, request, Response, redirect, url_for, flash, session
 from google.cloud import datastore
@@ -17,9 +18,8 @@ def createUserDetails(claims):
     entity_key = datastore_client.key('UserDetails', claims['email']) 
     entity = datastore.Entity(key = entity_key)
     entity.update({
-        'email' : claims['email'],
-        'name': claims['name'],                          
-        'creation_date': datetime.datetime.now(), 
+        'email' : claims['email'],                        
+        'creation_date': datetime.now(), 
         'room_list': []
 
     })
@@ -36,19 +36,51 @@ def isFound(title, startDate, endDate, startTime, endTime, category, roomID):
     booking_list = None
     entity_key= datastore_client.key('room', roomID)
     mylist = datastore_client.get(entity_key)
+    found = None
+    if len(mylist['booking_list'])==0:
+        return False
     
-    print(mylist)
     booking_list=mylist['booking_list']
-    
-    
+  
     for booking in booking_list:
-        #print(booking['startDate'])
-        if  startDate > booking['endDate'] and endDate > booking['endDate'] and startTime > booking['startTime'] and endTime > booking['endTime'] or startDate < booking['startDate'] and endDate < booking['endDate'] and startTime < booking['startTime'] and endTime < booking['endTime']: 
-            print("true")
+        format='%Y-%m-%d%H:%M'
+        start_date = booking['startDate'] + booking['startTime']
+        start_date_new = startDate + startTime
+        end_date = booking['endDate'] + booking['endTime']
+        end_date_new = endDate + endTime 
+       
+ 
+        start_date= time.mktime(datetime.strptime(start_date, format).timetuple())
+        end_date=time.mktime(datetime.strptime(end_date, format).timetuple())
+        start_date_new= time.mktime(datetime.strptime(start_date_new, format).timetuple())
+        end_date_new=time.mktime(datetime.strptime(end_date_new, format).timetuple())
+        
+        if start_date == start_date_new and end_date == end_date_new: 
+            found=True
+            print(1)
             return True
+        elif start_date_new < start_date and start_date_new < end_date and start_date < end_date_new and end_date_new < end_date:
+            found=True
+            print(2)
+            return found
+        elif start_date < start_date_new and start_date < end_date_new and end_date > start_date_new and end_date < end_date_new:
+            found=True
+            print(3)
+            return found
+        elif start_date < start_date_new and start_date < end_date_new and end_date > start_date_new and end_date > end_date_new:
+            found=True
+            print(4)
+            return found
+    
+    if found == None:
+        found =False
+        
+    return found
 
-    print("False")       
-    return False
+
+
+
+    
 
 def createNewBooking(claims, title, startDate, endDate, startTime, endTime, category, roomID):
     id = random.getrandbits(63)
@@ -294,7 +326,7 @@ def root():
                 userDetails = retrieveUserDetails(claims)
 
             session['email']=claims['email']
-            print(claims['email']   )
+        
             
 
             query = datastore_client.query(kind='room')
@@ -342,14 +374,14 @@ def manageRoomHandler():
 @app.route('/editBooking/<int:booking_id>/<int:roomID>', methods=['POST', 'GET'])
 def editBookingHandler(booking_id, roomID):
     userEmail=session['email']
-    print(userEmail)
+  
     result = retrieveBooking(userEmail, booking_id)
     return render_template('editBookings.html', booking_id=booking_id, roomID=roomID, result=result)
 
 @app.route('/showBooking/<int:id>', methods=['POST', 'GET'])
 def ShowBookingHandler(id):
     userEmail=  session['email']
-    print(userEmail)
+   
     result = retrieveRoom(id)
     return render_template('showBooking.html', result=result, userEmail=userEmail, roomID=id)
 
@@ -412,13 +444,18 @@ def createBookingHander(id):
     roomID=id
     userDetails = None
 
+    print(request.form.get('startTime'))
+    if request.form.get('startDate')== None or request.form.get('endDate')==None or request.form.get('startTime')== None or  request.form.get('endTime') == None:
+        flash('All field must be entered') 
+        return redirect('/')
+         
     if id_token:
         try:
             claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
             userDetails = retrieveUserDetails(claims)
           
             bookingID = createNewBooking(claims, request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), roomID)
-            print(bookingID)
+          
             if  bookingID != -1:
                 flash('You have successfully booked a room')
                 addRoomToUser(userDetails, roomID)
@@ -448,7 +485,7 @@ def edit_BookingHander(id, roomID ):
             claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
             userDetails = retrieveUserDetails(claims)
 
-            if isFound(request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), roomID):
+            if isFound(request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), roomID)==False:
                 updateBooking(claims, request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), bookingID)
                 updateBookingInRoom(request.form.get('title'), request.form.get('startDate'), request.form.get('endDate'), request.form.get('startTime'), request.form.get('endTime'), request.form.get('category'), roomID, bookingID)
                 flash('You have successfully edited your booking')
